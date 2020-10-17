@@ -1,0 +1,24 @@
+amqp:
+  queue: myQueue
+spring:
+  datasource:
+    url: jdbc:h2:~/fiapbatchcontrol;DB_CLOSE_ON_EXIT=FALSE
+    username: fiap
+    password: fiap
+  mail:
+    default-encoding: UTF-8
+    host: smtp.gmail.com
+    username: adcr.fiap@gmail.com
+    password: Fg4Bq5O$s6ZE
+    port: 587
+    subject: Dados de coleta Drone
+    to: andre.t.albuquerque@gmail.com
+    from: adcr.fiap@gmail.com
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+    protocol: smtp
+    test-connection: false
