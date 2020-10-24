@@ -1,6 +1,5 @@
 package br.com.fiap.batchConsumer.config;
 
-import br.com.fiap.batchConsumer.processor.EmailItemProcessor;
 import br.com.fiap.batchConsumer.service.EmailService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,17 +9,15 @@ import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
-import org.springframework.batch.item.*;
-import org.springframework.batch.item.amqp.AmqpItemReader;
-import org.springframework.batch.item.amqp.builder.AmqpItemReaderBuilder;
+import org.springframework.batch.core.launch.support.RunIdIncrementer;
+import org.springframework.batch.core.step.tasklet.Tasklet;
+import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
-import java.util.List;
+import java.time.LocalDateTime;
 
 @Configuration
 @EnableBatchProcessing
@@ -40,63 +37,46 @@ public class BatchConfiguration {
     @Value("${amqp.queue}")
     private String queue;
 
-    @Bean
-    public AmqpItemReader<String> itemReader()  {
-
-        RabbitTemplate template = new RabbitTemplate(Configuracao.getConnection());
-        template.setDefaultReceiveQueue(this.queue);
-
-        return new AmqpItemReaderBuilder<String>()
-                .amqpTemplate(template)
-                .build();
-    }
 
     @Bean
-    public ItemProcessor<String, String> itemProcessor(AmqpItemReader amqpItemReader){
-        logger.info("processamento");
+    public Tasklet readQueue(){
 
-        try {
-            byte[] body = (byte[]) amqpItemReader.read();
-            String mensagem = new String(body);
-            emailService.send(mensagem);
-            logger.info(mensagem);
+        return (contribution, chunkContext) -> {
+            RabbitTemplate template = new RabbitTemplate(Configuracao.getConnection());
 
-        } catch (NullPointerException ex) {
-            logger.info("Fila vazia!");
-        }
+            while(true) {
+                try {
+                    byte[] body = template.receive(this.queue).getBody();
+                    String mensagem = new String(body);
+                    emailService.send(mensagem);
+                    logger.info(mensagem);
 
-        return (mensagem) -> mensagem;
-    }
-
-    @Bean
-    public ItemWriter sendEmail(){
-        return new ItemWriter() {
-            @Override
-            public void write(List items) throws Exception {
-
+                } catch (NullPointerException ex) {
+                    logger.info("Fila vazia!");
+                    return RepeatStatus.FINISHED;
+                }
             }
+
         };
     }
 
     @Bean
     public Step step(StepBuilderFactory stepBuilderFactory,
-                     ItemReader<String> itemReader,
-                     ItemWriter<String> itemWriter,
-                     ItemProcessor<String, String> processor,
-                     @Qualifier("taskExecutor") ThreadPoolTaskExecutor taskExecutor) {
+                     Tasklet tasklet) {
 
-        return stepBuilderFactory.get("Step Chunk - processar fila rabbitMQ1")
-                .<String, String>chunk(1)
-                .reader(itemReader)
-                .processor(processor)
-                .writer(itemWriter)
-                .taskExecutor(taskExecutor)
-                .build();
+        return stepBuilderFactory.get("Step tasklet - processar fila rabbitMQ1")
+                    .tasklet(tasklet)
+                    .allowStartIfComplete(true)
+                    .build();
     }
 
     @Bean
     public Job job(JobBuilderFactory jobBuilderFactory,Step step) {
-        return jobBuilderFactory.get("Job - Ler fila rabbitMQ1")
+        String jobName = "Job - Ler fila rabbitMQ1";
+        LocalDateTime ld = LocalDateTime.now();
+
+        return jobBuilderFactory.get(jobName+"_"+ld.toString())
+                .incrementer( new RunIdIncrementer())
                 .start(step)
                 .build();
     }
