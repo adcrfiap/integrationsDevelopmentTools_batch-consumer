@@ -10,9 +10,9 @@ public class Configuracao {
 
         if (connectionFactory == null) {
             connectionFactory = new CachingConnectionFactory("jackal-01.rmq.cloudamqp.com");//TODO add hostname
-            connectionFactory.setUsername("vdukxihj");//TODO add username
-            connectionFactory.setPassword("UMyDw3Jna8kEnD8qBofFCoVMsChwHhhr");//TODO add password
-            connectionFactory.setVirtualHost("vdukxihj");//TODO add virtualhost
+            connectionFactory.setUsername("ozfphnoc");//TODO add username
+            connectionFactory.setPassword("C5VyICpsNVvsRTKDdjhv6LNMlGUtxB2h");//TODO add password
+            connectionFactory.setVirtualHost("ozfphnoc");//TODO add virtualhost
 
             //Recommended settings
             connectionFactory.setRequestedHeartBeat(30);
