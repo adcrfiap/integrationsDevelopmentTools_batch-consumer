@@ -20,7 +20,7 @@ queue - Nome da fila que sera consumida cloudAMQ
  
 ### Configuracao.java dentro do pacote config
   
-Preenchender com os dados de conexão do clouadAMQ.  
+Preenchender com os dados de conexão do cloudAMQ.  
 -Username  
 -Password  
 -VirtualHost  
