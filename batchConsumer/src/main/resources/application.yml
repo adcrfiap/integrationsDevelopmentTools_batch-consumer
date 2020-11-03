@@ -8,12 +8,12 @@ spring:
   mail:
     default-encoding: UTF-8
     host: smtp.gmail.com
-    username: adcr.fiap@gmail.com
-    password: Fg4Bq5O$s6ZE
+    username: <smtp email address>
+    password: <smtp email password>
     port: 587
     subject: Dados de coleta Drone
-    to: andre.t.albuquerque@gmail.com
-    from: adcr.fiap@gmail.com
+    to: <receiver email>
+    from: <smtp email address>
     properties:
       mail:
         smtp:
