@@ -15,7 +15,7 @@
 - from -> e-mail que sera informado como remetente  
   
 **amqp:**
-- queue - Nome da fila que sera consumida cloudAMQ
+- queue -> Nome da fila que sera consumida cloudAMQ
   
 ### Configuracao.java dentro do pacote config
   
