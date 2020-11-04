@@ -8,8 +8,8 @@ spring.datasource:
 
 mail:  
 host -> host do servidor smtp para envio do email  
-username -> usuario smtp
-password -> Senha do smtp  
+username -> usuario smtp  
+password -> Senha do smtp   
 to -> email que ira recerber os dados de coleto do Drone  
 from -> e-mail que sera informado como remetente  
   
